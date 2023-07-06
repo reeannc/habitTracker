@@ -18,7 +18,7 @@ const storage = {
     checkTheme(){
         return localStorage.getItem('habitsapp.theme');
     },
-    saveHabits(object){
+    saveHabit(object){
         const currentHabits = storage.getHabits();
         if(currentHabits === null || currentHabits === ''){
             localStorage.setItem('habitsapp.habits', JSON.stringify(object));
@@ -36,6 +36,14 @@ const storage = {
         }
         return currentHabits;
     },
+    habitStatus(id){
+        const currentHabits = storage.getHabits();
+        currentHabits.forEach(habit =>{
+            if(habit.id !== Number(id))return;
+            habit.completed === true ? habit.completed = false : habit.completed = true;
+        });
+        localStorage.setItem('habitsapp.habits', JSON.stringify(currentHabits));
+    }
 }
 
 const ui = {
@@ -63,18 +71,28 @@ const ui = {
             icon.classList.remove('selected');
         })
     },
-    addNewHabit(title, icon, id){
+    addNewHabit(title, icon, id, completed){
         const habitDiv = document.createElement('div');
         habitDiv.classList.add('habit');
         habitDiv.innerHTML = `
-          <button class="habit-btn" data-id="${id}" data-title="${title}">
-          <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-            ${icon}
-          </svg>
-        </button>
-        `;
+        <button class="habit-btn ${completed === true ? 'completed' : ''}" data-id="${id}" data-title="${title}">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+          ${icon}
+        </svg>
+      </button>
+      `;
         habitContainer.appendChild(habitDiv);
       },
+      refreshHabits(){
+        const uiHabits = document.querySelectorAll('.habit');
+        uiHabits.forEach(habit => habit.remove());
+        const currentHabits = storage.getHabits();
+        
+        currentHabits.forEach(habit => {
+          ui.addNewHabit(habit.title, habit.icon, habit.id, habit.completed);
+        });
+        console.table(currentHabits);
+      }
 }
 
 
@@ -82,11 +100,14 @@ const ui = {
 
 //event: window load
 
-window.addEventListener('DOMContentLoaded', () =>{
-    //load theme
+window.addEventListener('DOMContentLoaded', () => {
+    //Load theme
     const theme = storage.checkTheme();
     if(theme === 'dark') ui.theme();
-})
+    
+    //update uI
+    ui.refreshHabits();
+  })
 
 //event: theme button
 themeBtn.addEventListener('click', ui.theme);
@@ -107,7 +128,6 @@ icons.forEach(icon => {
 
 //event: add new habit btn
 addBtn.addEventListener('click', ()=> {
-
    const habitTitle = newHabitTitle.value;
     let habitIcon;
     icons.forEach(icon => {
@@ -117,10 +137,19 @@ addBtn.addEventListener('click', ()=> {
     const habitID = Math.random();
     ui.addNewHabit(habitTitle, habitIcon, habitID);
     ui.closeModal();
+    const habit = {
+        title: habitTitle,
+        icon: habitIcon,
+        id: habitID,
+        completed: false,
+    };
+    storage.saveHabit(habit);
 });
+storage.save
 
 //event: complete habit
 habitContainer.addEventListener('click', e =>{
     if(!e.target.classList.contains('habit-btn'))return;
     e.target.classList.toggle('completed');
+    storage.habitStatus(e.target.dataset.id);
     });
