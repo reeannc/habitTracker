@@ -253,4 +253,24 @@ h1{
     display: grid;
 }
 
-#habitTitle::before
+#habitTitle::before{
+    content: 'Title: ';
+}
+
+#delete{
+    font-size: inherit;
+    font-family: inherit;
+    background-color: var(--primary);
+    color: var(--danger);
+    border: 3px  solid var(--danger);
+    padding: .5rem;
+    margin-top: .5rem;
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+}
+
+#delete:hover, #delete:focus{
+    background-color: var(--primary);
+    color: var(--primary);
+    background-color: var(--danger);
+}

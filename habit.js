@@ -8,6 +8,9 @@ const newHabitTitle = document.querySelector('#title');
 const icons = document.querySelectorAll('.icon');
 const addBtn = document.querySelector('#add');
 const cancelBtn = document.querySelector('#cancel');
+let habitToBeDeleted;
+const deleteBtn = document.querySelector('#delete');
+const contextMenu = document.querySelector('.context-menu');
 
 //functions
 
@@ -153,3 +156,16 @@ habitContainer.addEventListener('click', e =>{
     e.target.classList.toggle('completed');
     storage.habitStatus(e.target.dataset.id);
     });
+
+//event: context menu
+habitContainer.addEventListener('contextmenu', e =>{
+    if(!e.target.classList.contains('habit-btn')) return;
+    e.preventDefault();
+    habitToBeDeleted = e.target.dataset.id;
+    const { clientX: mouseX, clientY: mouseY} = e;
+    contextMenu.style.top = `${mouseY}px`;
+    contextMenu.style.left = `${mouseX}px`;
+    const contextTitle = document.querySelector('#habitTitle');
+    contextTitle.textContent = e.target.dataset.title;
+    contextMenu.classList.add('active');
+})
